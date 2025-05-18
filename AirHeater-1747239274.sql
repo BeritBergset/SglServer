@@ -1,0 +1,97 @@
+CREATE TABLE [USER] (
+	[UserID] int IDENTITY(1,1) NOT NULL UNIQUE,
+	[UserName] nvarchar(max) NOT NULL,
+	[FirstName] nvarchar(max) NOT NULL,
+	[LastName] nvarchar(max) NOT NULL,
+	[password_hash] nvarchar(50) NOT NULL,
+	[UserCategory] int NOT NULL,
+	PRIMARY KEY ([UserID])
+);
+
+CREATE TABLE [USERCATEGORY] (
+	[ID] int IDENTITY(1,1) NOT NULL UNIQUE,
+	[UserCatID] int NOT NULL,
+	[Description] nvarchar(50) NOT NULL,
+	PRIMARY KEY ([ID])
+);
+
+CREATE TABLE [SENSOR] (
+	[SensorID] int IDENTITY(1,1) NOT NULL UNIQUE,
+	[SensorCategory] int NOT NULL,
+	[SensorTag] nvarchar(10) NOT NULL,
+	PRIMARY KEY ([SensorID])
+);
+
+CREATE TABLE [SENSORCATEGORY] (
+	[ID] int IDENTITY(1,1) NOT NULL UNIQUE,
+	[TypeID] int NOT NULL,
+	[Description] nvarchar(max) NOT NULL,
+	PRIMARY KEY ([ID])
+);
+
+CREATE TABLE [SAMPLE] (
+	[SampleID] int IDENTITY(1,1) NOT NULL UNIQUE,
+	[SensorID] int NOT NULL,
+	[Value] float(53) NOT NULL,
+	[TimeStamp] datetime NOT NULL,
+	PRIMARY KEY ([SampleID])
+);
+
+CREATE TABLE [SAMPLE1MIN] (
+	[SampleId] int IDENTITY(1,1) NOT NULL UNIQUE,
+	[SensorID] int NOT NULL,
+	[AvgValue] float(53) NOT NULL,
+	[MaxValue] float(53) NOT NULL,
+	[MinValue] float(53) NOT NULL,
+	[Timestamp] datetime NOT NULL,
+	PRIMARY KEY ([SampleId])
+);
+
+CREATE TABLE [ALARMTAG] (
+	[Id] int IDENTITY(1,1) NOT NULL UNIQUE,
+	[AlarmID] int NOT NULL,
+	[AlarmTag] nvarchar(max) NOT NULL,
+	[Priority] int NOT NULL,
+	[Description] nvarchar(max) NOT NULL,
+	[AlarmStatus] bit NOT NULL,
+	PRIMARY KEY ([Id])
+);
+
+CREATE TABLE [ALARMCATEGORY] (
+	[id] int IDENTITY(1,1) NOT NULL UNIQUE,
+	[AlarmCategory] int NOT NULL,
+	[Description] nvarchar(max) NOT NULL,
+	PRIMARY KEY ([id])
+);
+
+CREATE TABLE [ALARMSAMPLE] (
+	[id] int IDENTITY(1,1) NOT NULL UNIQUE,
+	[AlarmID] int NOT NULL,
+	[Time] datetime NOT NULL,
+	[AlarmState] int NOT NULL,
+	[User] int NOT NULL,
+	PRIMARY KEY ([id])
+);
+
+CREATE TABLE [ALARMSTATE] (
+	[id] int IDENTITY(1,1) NOT NULL UNIQUE,
+	[State] int NOT NULL,
+	[Description] nvarchar(max) NOT NULL,
+	PRIMARY KEY ([id])
+);
+
+ALTER TABLE [USER] ADD CONSTRAINT [USER_fk5] FOREIGN KEY ([UserCategory]) REFERENCES [USERCATEGORY]([UserCatID]);
+
+ALTER TABLE [SENSOR] ADD CONSTRAINT [SENSOR_fk1] FOREIGN KEY ([SensorCategory]) REFERENCES [SENSORCATEGORY]([TypeID]);
+
+ALTER TABLE [SAMPLE] ADD CONSTRAINT [SAMPLE_fk1] FOREIGN KEY ([SensorID]) REFERENCES [SENSOR]([SensorID]);
+ALTER TABLE [SAMPLE1MIN] ADD CONSTRAINT [SAMPLE1MIN_fk1] FOREIGN KEY ([SensorID]) REFERENCES [SENSOR]([SensorID]);
+ALTER TABLE [ALARMTAG] ADD CONSTRAINT [ALARMTAG_fk1] FOREIGN KEY ([AlarmID]) REFERENCES [ALARMSAMPLE]([AlarmID]);
+
+ALTER TABLE [ALARMTAG] ADD CONSTRAINT [ALARMTAG_fk3] FOREIGN KEY ([Priority]) REFERENCES [ALARMCATEGORY]([Category]);
+ALTER TABLE [ALARMCATEGORY] ADD CONSTRAINT [ALARMCATEGORY_fk1] FOREIGN KEY ([AlarmCategory]) REFERENCES [ALARMTAG]([Priority]);
+ALTER TABLE [ALARMSAMPLE] ADD CONSTRAINT [ALARMSAMPLE_fk1] FOREIGN KEY ([AlarmID]) REFERENCES [ALARMTAG]([AlarmId]);
+
+ALTER TABLE [ALARMSAMPLE] ADD CONSTRAINT [ALARMSAMPLE_fk3] FOREIGN KEY ([AlarmState]) REFERENCES [ALARMSTATE]([State]);
+
+ALTER TABLE [ALARMSAMPLE] ADD CONSTRAINT [ALARMSAMPLE_fk4] FOREIGN KEY ([User]) REFERENCES [USER]([UserID]);
